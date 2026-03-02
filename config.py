@@ -8,7 +8,6 @@ if CONFIG_FILE is None:
     logging.error("Can't find CONFIG_FILE in environment's variables")
     os.abort()
 
-# Configuration par défaut si le fichier n'existe pas
 DEFAULT_CONFIG = {
     "email": {
         "imap_server": "imap.gmail.com",

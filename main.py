@@ -3,11 +3,15 @@ load_dotenv()
 
 import logging
 import os
+import uuid
+import asyncio
 
-from globals import WEB_APP, BOT
+from globals import WEB_APP, BOT, CONFIG
 from mail import check_emails
 from nextcloud import check_nextcloud
-
+from components import NotificationView
+from config import save_config_async
+import panel
 
 # ==========================================
 # CONFIGURATION GÉNÉRALE
@@ -19,22 +23,67 @@ if DISCORD_TOKEN is None:
     os.abort()
 
 # ==========================================
+# GESTION DE LA FERMETURE (SHUTDOWN)
+# ==========================================
+async def quart_shutdown_trigger():
+    """
+    Fonction sentinelle. Elle tourne en silence et se termine 
+    uniquement lorsque le bot Discord commence sa fermeture.
+    Cela indique à Quart de libérer le port 5000 et de s'éteindre proprement.
+    """
+    while not BOT.is_closed():
+        await asyncio.sleep(0.5)
+    logging.info("Extinction propre du serveur web Quart...")
+
+# ==========================================
 # ÉVÉNEMENTS DISCORD
 # ==========================================
 @BOT.event
 async def on_ready():
-    print(f"Bot connecté en tant que {BOT.user}")
+    logging.info(f"Bot connecté en tant que {BOT.user}")
+    
+    # --- MIGRATION & PERSISTANCE DES BOUTONS ---
+    config_mutated = False
+
+    if "panel" not in CONFIG:
+        CONFIG["panel"] = {"password": "admin"}
+        config_mutated = True
+    
+    # Nextcloud
+    if "subscribers" not in CONFIG["nextcloud"]:
+        CONFIG["nextcloud"]["subscribers"] = []
+        config_mutated = True
+    BOT.add_view(NotificationView("nextcloud", "main"))
+    
+    # E-mails (Ajout d'UUID pour les anciennes règles et enregistrement des vues)
+    for rule in CONFIG["email"].get("rules", []):
+        if "id" not in rule:
+            rule["id"] = str(uuid.uuid4())
+            config_mutated = True
+        if "subscribers" not in rule:
+            rule["subscribers"] = []
+            config_mutated = True
+            
+        BOT.add_view(NotificationView("email", rule["id"]))
+        
+    if config_mutated:
+        await save_config_async(CONFIG)
+    # --------------------------------------------
 
     if not check_emails.is_running():
+        logging.info("Starting email checks")
         check_emails.start()
-        print("Surveillance e-mail activée.")
         
     if not check_nextcloud.is_running():
+        logging.info("Starting nextcloud checks")
         check_nextcloud.start()
-        print("Surveillance Nextcloud activée.")
 
-    print("Démarrage du panel d'administration web sur http://127.0.0.1:5000")
-    BOT.loop.create_task(WEB_APP.run_task(host='0.0.0.0', port=5000))
+    logging.info("Démarrage du panel d'administration web sur http://127.0.0.1:5000")
+    BOT.loop.create_task(WEB_APP.run_task(
+        host='0.0.0.0', 
+        port=5000, 
+        shutdown_trigger=quart_shutdown_trigger
+    ))
 
 # Lancement du bot
 if __name__ == "__main__":
