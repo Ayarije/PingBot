@@ -7,46 +7,52 @@ import requests
 import xml.etree.ElementTree as ET
 import urllib.parse
 import asyncio
+import logging
 import re
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 # ==========================================
 # CONFIGURATION GÉNÉRALE
 # ==========================================
-DISCORD_TOKEN = "TON_TOKEN_DISCORD_ICI"
+DISCORD_TOKEN = os.getenv("BOT_TOKEN")
+if DISCORD_TOKEN is None:
+    logging.log(logging.ERROR, "Can't find bot token in environment variables please setup your bot at discord's developper's portal")
+    os.abort()
+
+MAIL_PASSWORD = os.getenv("MAIL_PWD")
+if MAIL_PASSWORD is None:
+    logging.log(logging.ERROR, "Can't find mail password in environment variables")
+    os.abort()
 
 # Configuration de la boîte mail
 EMAIL_CONFIG = {
-    "imap_server": "imap.gmail.com",
-    "email": "ton_email@gmail.com",
-    "password": "ton_mot_de_passe_d_application",
+    "imap_server": "mail.pwlk.fr",
+    "email": "valentin@pwlk.fr",
+    "port": 9933,
+    "password": os.getenv("MAIL_PWD"),
     "folder": "inbox",
-    "check_interval_minutes": 5 # Vérifie toutes les 5 minutes
+    "check_interval_minutes": 1
 }
 
 # Configuration Nextcloud
 NEXTCLOUD_CONFIG = {
-    "share_link": "https://cloud.tondomaine.com/s/T0k3nEx3mpl3",
-    "password": "", # Laisser vide si le lien n'a pas de mot de passe
-    "channel_id": 111111111111111111, # ID du channel pour les alertes Nextcloud
-    "check_interval_minutes": 10
+    "share_link": "https://nextcloud.pwlk.fr/s/nS8FTJ5Ln2y7arw",
+    "password": "",
+    "channel_id": 1233324406076346378,
+    "check_interval_minutes": 1
 }
 
 # Règles de tri des e-mails (1 Channel = 1 ou plusieurs conditions)
 # Options de conditions : "sender", "recipient", "subject_contains", "body_contains", "case_sensitive"
 EMAIL_RULES = [
     {
-        "channel_id": 222222222222222222,
+        "channel_id": 1233324458266202122,
         "conditions": {
-            "sender": "patron@entreprise.com",
-            "subject_contains": "URGENT",
-            "case_sensitive": True # Doit être exactement "URGENT" en majuscules
-        }
-    },
-    {
-        "channel_id": 333333333333333333,
-        "conditions": {
-            "subject_contains": "facture",
-            "case_sensitive": False # Accepte "Facture", "FACTURE", "facture"
+            "sender": "valentin@pwlk.fr",
+            #"subject_contains": "URGENT",
+            "case_sensitive": False
         }
     }
 ]
@@ -163,7 +169,7 @@ def get_nextcloud_files():
 async def check_emails():
     """Se connecte à l'IMAP, récupère les e-mails non lus, et les trie selon les règles."""
     try:
-        mail = imaplib.IMAP4_SSL(EMAIL_CONFIG["imap_server"])
+        mail = imaplib.IMAP4_SSL(EMAIL_CONFIG["imap_server"], EMAIL_CONFIG["port"])
         mail.login(EMAIL_CONFIG["email"], EMAIL_CONFIG["password"])
         mail.select(EMAIL_CONFIG["folder"])
 
