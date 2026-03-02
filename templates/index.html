@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Bot Discord</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; }
+        .navbar { background-color: #5865F2; }
+        .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">⚙️ Bot Discord - Centre de Contrôle</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">📧 Configuration Serveur IMAP (SSL)</div>
+                    <div class="card-body">
+                        <form method="POST" action="/update_imap">
+                            <div class="row">
+                                <div class="col-8 mb-3">
+                                    <label class="form-label">Serveur IMAP :</label>
+                                    <input type="text" name="imap_server" class="form-control" value="{{ config['email']['imap_server'] }}" required>
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <label class="form-label">Port :</label>
+                                    <input type="number" name="imap_port" class="form-control" value="{{ config['email']['port'] }}" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Adresse E-mail :</label>
+                                <input type="email" name="email_address" class="form-control" value="{{ config['email']['email'] }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mot de Passe (App Password) :</label>
+                                <input type="password" name="email_password" class="form-control" value="{{ config['email']['password'] }}" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Sauvegarder IMAP</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">📁 Configuration Nextcloud</div>
+                    <div class="card-body">
+                        <form method="POST" action="/update_nextcloud">
+                            <div class="mb-3">
+                                <label class="form-label">Lien de partage public :</label>
+                                <input type="url" name="nc_link" class="form-control" value="{{ config['nextcloud']['share_link'] }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">ID du Salon Discord :</label>
+                                <input type="number" name="nc_channel" class="form-control" value="{{ config['nextcloud']['channel_id'] }}" required>
+                            </div>
+                            <button type="submit" class="btn btn-dark w-100">Sauvegarder Nextcloud</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
