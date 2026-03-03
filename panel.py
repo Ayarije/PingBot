@@ -65,9 +65,9 @@ async def update_imap():
 async def update_nextcloud():
     form_data = await request.form
     CONFIG["nextcloud"]["share_link"] = form_data.get("nc_link")
+    CONFIG["nextcloud"]["password"] = form_data.get("password")
     CONFIG["nextcloud"]["channel_id"] = int(str(form_data.get("nc_channel")))
     
-    # Importation locale pour éviter les imports circulaires
     from globals import PREVIOUS_NC_FILES, NC_INITIALIZED
     NC_INITIALIZED = False
     PREVIOUS_NC_FILES.clear()
