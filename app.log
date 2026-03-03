@@ -1,9 +1,9 @@
-INFO:root:Debug mode is ON
-WARNING:discord.ext.commands.bot:Privileged message content intent is missing, commands may not work as expected.
-INFO:discord.client:logging in using static token
-INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 7a61767f7858346871b789afa43a880a).
-INFO:root:Bot connecté en tant que PingBot#8424
-INFO:root:Starting email checks
-INFO:root:Starting nextcloud checks
-INFO:root:Démarrage du panel d'administration web sur http://127.0.0.1:5000
-INFO:hypercorn.error:Running on http://0.0.0.0:5000 (CTRL + C to quit)
+2026-03-03 22:07:02,428 [INFO] root: Running in standard mode
+2026-03-03 22:07:02,429 [WARNING] discord.ext.commands.bot: Privileged message content intent is missing, commands may not work as expected.
+2026-03-03 22:07:02,429 [INFO] discord.client: logging in using static token
+2026-03-03 22:07:03,517 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: fbd881a52474556183aa15c8ed07ada4).
+2026-03-03 22:07:05,521 [INFO] root: Bot connecté en tant que PingBot#8424
+2026-03-03 22:07:05,522 [INFO] root: Starting email checks
+2026-03-03 22:07:05,522 [INFO] root: Starting nextcloud checks
+2026-03-03 22:07:05,522 [INFO] root: Démarrage du panel d'administration web sur http://127.0.0.1:5000
+2026-03-03 22:07:05,528 [INFO] hypercorn.error: Running on http://0.0.0.0:5000 (CTRL + C to quit)

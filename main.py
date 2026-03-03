@@ -94,17 +94,22 @@ def main():
 
     args = parser.parse_args()
 
+    log_level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(
-        level=logging.DEBUG if args.debug else logging.INFO,
-        filename="app.log",
-        filemode="w"
+        level=log_level,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        handlers=[
+            logging.FileHandler("app.log", mode="w", encoding="utf-8"),
+            logging.StreamHandler()
+        ]
     )
 
     if args.debug:
         logging.info("Debug mode is ON")
     else:
         logging.info("Running in standard mode")
-    BOT.run(DISCORD_TOKEN, root_logger=True)
+        
+    BOT.run(DISCORD_TOKEN, log_handler=None)
 
 if __name__ == "__main__":
     main()

@@ -68,7 +68,7 @@ def get_nextcloud_files():
     propfind_headers['X-Requested-With'] = 'XMLHttpRequest'
     
     if request_token:
-        propfind_headers['requesttoken'] = request_token
+        propfind_headers['requesttoken'] = str(request_token)
 
     try:
         dav_res = session.request("PROPFIND", webdav_url, headers=propfind_headers, timeout=15)
