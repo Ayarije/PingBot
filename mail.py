@@ -112,6 +112,20 @@ def fetch_emails_sync():
     except Exception as e:
         print(f"Erreur réseau IMAP (Thread) : {e}")
         return []
+    
+def check_imap_connection_sync():
+    """Vérifie rapidement si la connexion IMAP est fonctionnelle pour la commande /status."""
+    cfg = CONFIG["email"]
+    if not cfg.get("imap_server") or not cfg.get("email") or not cfg.get("password"):
+        return False, "Non configuré dans le panel"
+
+    try:
+        mail = imaplib.IMAP4_SSL(cfg["imap_server"], int(cfg["port"]))
+        mail.login(cfg["email"], cfg["password"])
+        mail.logout()
+        return True, "En ligne et authentifié"
+    except Exception as e:
+        return False, f"Erreur : {e}"
 
 
 # ==========================================

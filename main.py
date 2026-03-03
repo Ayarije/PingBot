@@ -6,10 +6,11 @@ import os
 import uuid
 import asyncio
 import argparse
+import discord
 
 from globals import WEB_APP, BOT, CONFIG
-from mail import check_emails
-from nextcloud import check_nextcloud
+from mail import check_emails, check_imap_connection_sync
+from nextcloud import check_nextcloud, get_nextcloud_files
 from components import NotificationView
 from config import save_config_async
 import panel
@@ -35,6 +36,48 @@ async def quart_shutdown_trigger():
     while not BOT.is_closed():
         await asyncio.sleep(0.5)
     logging.info("Extinction propre du serveur web Quart...")
+
+# ==========================================
+# COMMANDES SLASH GLOBALES
+# ==========================================
+@BOT.tree.command(name="status", description="Vérifie l'état des connexions IMAP et Nextcloud en temps réel.")
+async def status_command(interaction: discord.Interaction):
+    """Commande pour diagnostiquer l'état du bot silencieusement."""
+    
+    # 1. On dit à Discord de patienter, le message sera invisible pour les autres (ephemeral)
+    await interaction.response.defer(ephemeral=True)
+
+    # 2. Vérification IMAP (Exécutée dans un Thread pour ne pas figer Discord)
+    imap_ok, imap_msg = await asyncio.to_thread(check_imap_connection_sync)
+
+    # 3. Vérification Nextcloud (On réutilise la fonction WebDAV furtive)
+    if not CONFIG["nextcloud"].get("share_link"):
+        nc_ok, nc_msg = False, "Non configuré dans le panel"
+    else:
+        nc_files = await asyncio.to_thread(get_nextcloud_files)
+        if nc_files is not None:
+            nc_ok, nc_msg = True, f"En ligne ({len(nc_files)} fichiers trouvés)"
+        else:
+            nc_ok, nc_msg = False, "Erreur de connexion (voir logs)"
+
+    # 4. Construction de l'interface visuelle (Embed)
+    embed = discord.Embed(title="📊 Diagnostic des Services", color = discord.Color.dark_theme())
+    
+    embed.add_field(
+        name="📧 Serveur IMAP (Mails)", 
+        value=f"**{'🟢' if imap_ok else '🔴'}** {imap_msg}", 
+        inline=False
+    )
+    embed.add_field(
+        name="📁 Serveur Nextcloud", 
+        value=f"**{'🟢' if nc_ok else '🔴'}** {nc_msg}", 
+        inline=False
+    )
+    
+    embed.set_footer(text="Ce message n'est visible que par vous.")
+
+    # 5. Envoi du résultat final
+    await interaction.followup.send(embed=embed)
 
 # ==========================================
 # ÉVÉNEMENTS DISCORD

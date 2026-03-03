@@ -176,12 +176,11 @@ async def check_nextcloud():
 async def list_nextcloud_files(interaction: discord.Interaction):
     """Commande Slash pour forcer l'affichage des fichiers Nextcloud."""
     
-    # 1. Vérification de la configuration
     if not CONFIG["nextcloud"].get("share_link"):
         await interaction.response.send_message("❌ Aucun lien Nextcloud n'est actuellement configuré dans le panel web.", ephemeral=True)
         return
 
-    await interaction.response.defer(ephemeral=False) # ephemeral=False permet à tout le salon de voir la réponse
+    await interaction.response.defer(ephemeral=True)
 
     current_files = await asyncio.to_thread(get_nextcloud_files)
 
