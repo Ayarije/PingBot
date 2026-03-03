@@ -168,3 +168,38 @@ async def check_nextcloud():
             await channel.send(content=content, embed=embed_rem, view=view)
 
     PREVIOUS_NC_FILES = current_files
+
+# ==========================================
+# COMMANDES SLASH DISCORD
+# ==========================================
+@BOT.tree.command(name="nextcloud_list", description="Affiche la liste actuelle des fichiers présents sur le dossier Nextcloud.")
+async def list_nextcloud_files(interaction: discord.Interaction):
+    """Commande Slash pour forcer l'affichage des fichiers Nextcloud."""
+    
+    # 1. Vérification de la configuration
+    if not CONFIG["nextcloud"].get("share_link"):
+        await interaction.response.send_message("❌ Aucun lien Nextcloud n'est actuellement configuré dans le panel web.", ephemeral=True)
+        return
+
+    await interaction.response.defer(ephemeral=False) # ephemeral=False permet à tout le salon de voir la réponse
+
+    current_files = await asyncio.to_thread(get_nextcloud_files)
+
+    if current_files is None:
+        await interaction.followup.send("⚠️ **Erreur de connexion à Nextcloud.** Impossible de récupérer la liste des fichiers. Vérifiez les logs.")
+        return
+    
+    if not current_files:
+        embed = discord.Embed(title="📁 Fichiers Nextcloud", description="*Le dossier est actuellement vide.*", color=discord.Color.light_gray())
+        await interaction.followup.send(embed=embed)
+        return
+
+    file_list_str = "\n".join([f"📄 {f}" for f in sorted(list(current_files))])
+    
+    if len(file_list_str) > 4000:
+        file_list_str = file_list_str[:4000] + "\n\n*[... Liste tronquée car trop longue ...]*"
+
+    embed = discord.Embed(title="📁 Fichiers Nextcloud", description=file_list_str, color=discord.Color.blue())
+    embed.set_footer(text=f"Total : {len(current_files)} fichier(s)")
+    
+    await interaction.followup.send(embed=embed)

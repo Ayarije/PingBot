@@ -55,6 +55,13 @@ async def on_ready():
         CONFIG["nextcloud"]["subscribers"] = []
         config_mutated = True
     BOT.add_view(NotificationView("nextcloud", "main"))
+
+    # SYNCHRONISATION DES COMMANDES SLASH
+    try:
+        synced = await BOT.tree.sync()
+        logging.info(f"Commandes Slash synchronisées avec succès : {len(synced)} commande(s) trouvée(s).")
+    except Exception as e:
+        logging.error(f"Erreur lors de la synchronisation des commandes Slash : {e}")
     
     # E-mails (Ajout d'UUID pour les anciennes règles et enregistrement des vues)
     for rule in CONFIG["email"].get("rules", []):
