@@ -5,6 +5,7 @@ import logging
 import os
 import uuid
 import asyncio
+import argparse
 
 from globals import WEB_APP, BOT, CONFIG
 from mail import check_emails
@@ -19,7 +20,7 @@ import panel
 
 DISCORD_TOKEN = os.getenv("BOT_TOKEN")
 if DISCORD_TOKEN is None:
-    logging.log(logging.ERROR, "Can't find bot token in environment variables please setup your bot at discord's developper's portal")
+    logging.error("Can't find bot token in environment variables please setup your bot at discord's developper's portal")
     os.abort()
 
 # ==========================================
@@ -85,6 +86,25 @@ async def on_ready():
         shutdown_trigger=quart_shutdown_trigger
     ))
 
-# Lancement du bot
+def main():
+    global DISCORD_TOKEN
+    assert DISCORD_TOKEN != None
+    parser = argparse.ArgumentParser(description="An example script with a flag.")
+    parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode")
+
+    args = parser.parse_args()
+
+    logging.basicConfig(
+        level=logging.DEBUG if args.debug else logging.INFO,
+        filename="app.log",
+        filemode="w"
+    )
+
+    if args.debug:
+        logging.info("Debug mode is ON")
+    else:
+        logging.info("Running in standard mode")
+    BOT.run(DISCORD_TOKEN, root_logger=True)
+
 if __name__ == "__main__":
-    BOT.run(DISCORD_TOKEN)
+    main()

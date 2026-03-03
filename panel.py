@@ -1,3 +1,4 @@
+import uuid
 from quart import request, redirect, url_for, render_template, session
 from functools import wraps
 
@@ -53,7 +54,7 @@ async def index():
 async def update_imap():
     form_data = await request.form
     CONFIG["email"]["imap_server"] = form_data.get("imap_server")
-    CONFIG["email"]["port"] = int(form_data.get("imap_port"))
+    CONFIG["email"]["port"] = int(str(form_data.get("imap_port")))
     CONFIG["email"]["email"] = form_data.get("email_address")
     CONFIG["email"]["password"] = form_data.get("email_password")
     await save_config_async(CONFIG)
@@ -64,7 +65,7 @@ async def update_imap():
 async def update_nextcloud():
     form_data = await request.form
     CONFIG["nextcloud"]["share_link"] = form_data.get("nc_link")
-    CONFIG["nextcloud"]["channel_id"] = int(form_data.get("nc_channel"))
+    CONFIG["nextcloud"]["channel_id"] = int(str(form_data.get("nc_channel")))
     
     # Importation locale pour éviter les imports circulaires
     from globals import PREVIOUS_NC_FILES, NC_INITIALIZED
@@ -88,14 +89,14 @@ async def add_rule():
     conditions = {}
     
     # Nettoyage (.strip()) et ajout des conditions uniquement si elles sont remplies
-    if form_data.get("cond_sender") and form_data.get("cond_sender").strip():
-        conditions["sender"] = form_data.get("cond_sender").strip()
+    if form_data.get("cond_sender") and str(form_data.get("cond_sender")).strip():
+        conditions["sender"] = str(form_data.get("cond_sender")).strip()
         
-    if form_data.get("cond_recipient") and form_data.get("cond_recipient").strip():
-        conditions["recipient"] = form_data.get("cond_recipient").strip()
+    if form_data.get("cond_recipient") and str(form_data.get("cond_recipient")).strip():
+        conditions["recipient"] = str(form_data.get("cond_recipient")).strip()
         
-    if form_data.get("cond_subject") and form_data.get("cond_subject").strip():
-        conditions["subject_contains"] = form_data.get("cond_subject").strip()
+    if form_data.get("cond_subject") and str(form_data.get("cond_subject")).strip():
+        conditions["subject_contains"] = str(form_data.get("cond_subject")).strip()
         
     # La sensibilité à la casse
     conditions["case_sensitive"] = True if form_data.get("cond_case_sensitive") == "true" else False
