@@ -2,7 +2,7 @@ import discord
 from discord.ext import tasks
 import imaplib
 import email
-import logging
+import re
 import asyncio
 from email.header import decode_header
 
@@ -29,35 +29,37 @@ def decode_mime_words(s):
     return result
 
 def check_conditions(mail_data, rule_conditions):
-    """Vérifie si un e-mail satisfait les conditions d'une règle."""
+    """Vérifie si un e-mail satisfait les conditions d'une règle en utilisant des Expressions Régulières."""
     case_sensitive = rule_conditions.get("case_sensitive", False)
     
-    # Extraction des données du mail
+    # On utilise les drapeaux Regex natifs pour gérer la casse
+    flags = re.DOTALL if case_sensitive else (re.IGNORECASE | re.DOTALL)
+    
     sender = mail_data.get("sender", "")
     recipient = mail_data.get("recipient", "")
     subject = mail_data.get("subject", "")
     
-    if not case_sensitive:
-        sender = sender.lower()
-        recipient = recipient.lower()
-        subject = subject.lower()
-    
-    # Vérification Sender
+    def match_regex(pattern, text):
+        """Tente de lire la Regex. Si elle est invalide (ex: parenthèse non fermée), bloque le mail au lieu de crasher le bot."""
+        if not pattern:
+            return True
+        try:
+            return bool(re.search(pattern, text, flags))
+        except re.error as e:
+            print(f"Erreur de syntaxe Regex dans une règle : {e}")
+            return False
+
+    # Évaluation des Regex
     if "sender" in rule_conditions:
-        rule_sender = rule_conditions["sender"] if case_sensitive else rule_conditions["sender"].lower()
-        if rule_sender not in sender:
+        if not match_regex(rule_conditions["sender"], sender):
             return False
             
-    # Vérification Recipient
     if "recipient" in rule_conditions:
-        rule_recip = rule_conditions["recipient"] if case_sensitive else rule_conditions["recipient"].lower()
-        if rule_recip not in recipient:
+        if not match_regex(rule_conditions["recipient"], recipient):
             return False
             
-    # Vérification Subject
     if "subject_contains" in rule_conditions:
-        rule_subj = rule_conditions["subject_contains"] if case_sensitive else rule_conditions["subject_contains"].lower()
-        if rule_subj not in subject:
+        if not match_regex(rule_conditions["subject_contains"], subject):
             return False
 
     return True
@@ -155,7 +157,6 @@ async def check_emails():
                     "sender": sender,
                     "recipient": recipient
                 }
-                logging.info(recipient)
                 
                 body = get_email_body(msg)
                 if len(body) > 4000:
