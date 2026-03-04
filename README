@@ -1,35 +1,42 @@
-"Georel Albert" <kjorelsan@gmail.com>,"Eva Allouche"
-    <egalya.allouche@gmail.com>,"Enzo Aumon" <enzo.aumond@gmail.com>,
-    "Mohammed Batou" <batoumohammed220@gmail.com>,"Damien Belliard"
-    <belliard.damienpro@gmail.com>,"Lucas Bienvenu"
-    <lucas.bienvenu37@gmail.com>,"Paul Bigot" <paulbigot2@gmail.com>,
-    "Sacha Bourel" <sachabourel3@gmail.com>,"Alexy Brault"
-    <alexy.brault2007@gmail.com>,"Abass Cheikh Mohamed Vadel"
-    <abasscmv@gmail.com>,"Lucie Da Costa" <lucie.dacosta525@gmail.com>,
-    "Tilo Dameron" <tilo@dameron.eu>,"Ethan Delmas"
-    <delmas.ethan@gmail.com>,"Ines Dindar" <bouvierines974@gmail.com>,
-    "Roxane Dousson" <roxane.dousson@icloud.com>,"Alexandre Drault"
-    <alexandre.drault29@gmail.com>,"Arthur Gonnella"
-    <arthur.gonnella@gmail.com>,"Hugues Igier" <huguesigier@gmail.com>,
-    "Matt Hommel" <matt.hommel11@gmail.com>,
-    =?utf-8?B?IlLDqW1pIEphbmluIg==?= <janinremi@pm.me>,"Evrard Kouame"
-    <evrardbenson@gmail.com>,"Matteo La Barbera"
-    <matteolabarbera042@gmail.com>,"Yvan Le Chevillier"
-    <yvan.lechevillier36@gmail.com>,=?utf-8?B?IkRhdmlkIExlIFF1w6lyw6ki?=
-    <davidlequere18@gmail.com>,"Kamil Leys" <leys.kamil@gmail.com>,"Yahya
-    Lmassini" <lmassini.yahya@gmail.com>,"Mathis Loc"
-    <locmathis@icloud.com>,"Bastien Loison" <bastienloison96@gmail.com>,
-    =?utf-8?B?IkF1csOpbGllbiBNYWdpbWVsIg==?=
-    <aurelien.magimel.mail@gmail.com>,"Nino Marsais"
-    <marsaisnino@gmail.com>,"Zahra Menzou" <menzou.zahra31@gmail.com>,
-    "Nathan Monier" <nat.monier.07@gmail.com>,"Thomas Moreau--Jaguenaud"
-    <thomas.moreau10112007@gmail.com>,=?utf-8?B?Ik1hdGjDqW8gTW9yZWF1Ig==?=
-    <matheo.moreau2007@gmail.com>,"Yanis Muntrez" <ymuntrez@gmail.com>,
-    =?utf-8?B?IkthdMOpcmkgT3NzYWR6b3ci?= <kateri.ossadzow@yahoo.com>,
-    "Valentin Pawlak" <valentin@pwlk.fr>,"Emilien Poirier"
-    <emilpoirier@icloud.com>,"Simon Pouplin" <sim.pouplin@free.fr>,"Eliott
-    Raimbault" <raimbault.eliott@gmail.com>,"Alexis Richet"
-    <alexisrichet@icloud.com>,"Charly Santacreu"
-    <santacreucharly@gmail.com>,"Luka Schwerdtfeger"
-    <schwerdtfeger.luka@outlook.com>,"Ulysse Vaillant"
-    <VaillantBosseU@hotmail.com>,"Tom Venot" <tom.venot@outlook.fr>
+# PingBot - Le pont entre vos outils et Discord
+
+PingBot est un bot Discord asynchrone conçu pour centraliser vos alertes professionnelles et scolaires directement dans vos salons Discord. Il surveille en temps réel vos boîtes e-mail (IMAP) et vos dossiers partagés Nextcloud, avec un système de filtrage puissant et une interface d'administration Web intégrée.
+
+## Fonctionnalités
+
+* **Surveillance Nextcloud :** Surveille les ajouts et suppressions de fichiers sur un lien de partage public Nextcloud. Utilise une architecture de requêtes "hybride" (WebDAV + Session PHP) capable de contourner les pare-feux institutionnels stricts (WAF, Fail2Ban).
+* **Routage d'E-mails (IMAP) :** Lit les e-mails entrants via IMAP SSL et les transfère sur Discord.
+* **Moteur de Filtrage par Regex :** Triez vos e-mails avec une précision chirurgicale grâce aux Expressions Régulières (Regex). Routez les messages vers des salons spécifiques en fonction de l'expéditeur, du destinataire ou de l'objet du mail.
+* **Panel d'Administration Web :** Une interface utilisateur claire, inspirée de Google Forms, pour configurer les identifiants et les règles de tri sans jamais toucher au code. Sécurisée par un système de session chiffrée.
+* **Commandes Slash Interactives :** * `/nextcloud_list` : Affiche instantanément le contenu du dossier surveillé.
+    * `/status` : Réalise un diagnostic silencieux des connexions IMAP et Nextcloud en temps réel.
+* **Abonnements aux Notifications :** Les utilisateurs peuvent s'abonner (bouton "🔔 Toggle Notifications") pour être mentionnés (`@User`) lorsqu'une nouvelle alerte tombe dans un salon.
+
+## Prérequis
+
+* **Python 3.8+** (Testé sur Python 3.14)
+* Un compte développeur Discord et un Bot Token.
+* **(Optionnel mais recommandé) Miniconda** pour isoler l'environnement Python.
+
+## Installation & Lancement (Environnement Linux / VM)
+
+PingBot est conçu pour fonctionner en "User Space", c'est-à-dire **sans nécessiter les droits administrateur (`sudo`)**, ce qui le rend idéal pour les environnements partagés.
+
+### 1. Clonage et Environnement Virtuel
+
+``` bash
+git clone https://github.com/Ayarije/PingBot.git
+cd PingBot
+
+# Création d'un environnement Conda isolé
+conda create -n pingbot python=3.11 -y
+conda activate pingbot
+pip install -r requirement.txt
+```
+
+### 2. Lancement
+
+``` bash
+conda activate pingbot
+python main.py
+```
