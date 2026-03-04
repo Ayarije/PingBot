@@ -160,11 +160,15 @@ async def check_nextcloud():
         if added_files:
             embed_add = discord.Embed(title="📁 Nouveaux fichiers ajoutés (Nextcloud)", color=discord.Color.green())
             embed_add.description = "\n".join([f"➕ {f}" for f in added_files])
+            embed_add.add_field(name="Lien", value=CONFIG["nextcloud"]["share_link"])
+            embed_add.set_footer(text=f"Total : {len(added_files)} fichier(s) | Lien : {CONFIG["nextcloud"]["share_link"]}")
             await channel.send(content=content, embed=embed_add, view=view)
             
         if removed_files:
             embed_rem = discord.Embed(title="🗑️ Fichiers supprimés (Nextcloud)", color=discord.Color.red())
             embed_rem.description = "\n".join([f"➖ {f}" for f in removed_files])
+            embed_rem.add_field(name="Lien", value=CONFIG["nextcloud"]["share_link"])
+            embed_rem.set_footer(text=f"Total : {len(removed_files)} fichier(s)")
             await channel.send(content=content, embed=embed_rem, view=view)
 
     PREVIOUS_NC_FILES = current_files
@@ -199,6 +203,7 @@ async def list_nextcloud_files(interaction: discord.Interaction):
         file_list_str = file_list_str[:4000] + "\n\n*[... Liste tronquée car trop longue ...]*"
 
     embed = discord.Embed(title="📁 Fichiers Nextcloud", description=file_list_str, color=discord.Color.blue())
+    embed.add_field(name="Lien", value=CONFIG["nextcloud"]["share_link"])
     embed.set_footer(text=f"Total : {len(current_files)} fichier(s)")
     
     await interaction.followup.send(embed=embed)

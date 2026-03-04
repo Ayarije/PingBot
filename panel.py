@@ -115,7 +115,7 @@ async def add_rule():
             
         CONFIG["email"]["rules"].append(new_rule)
         
-        from main import BOT
+        from globals import BOT
         from components import NotificationView
         BOT.add_view(NotificationView("email", new_rule["id"]))
         

@@ -2,6 +2,7 @@ import discord
 from discord.ext import tasks
 import imaplib
 import email
+import logging
 import asyncio
 from email.header import decode_header
 
@@ -154,6 +155,7 @@ async def check_emails():
                     "sender": sender,
                     "recipient": recipient
                 }
+                logging.info(recipient)
                 
                 body = get_email_body(msg)
                 if len(body) > 4000:
