@@ -3,6 +3,8 @@ from discord.ext import tasks
 import imaplib
 import email
 import re
+import io
+import os
 import asyncio
 from email.header import decode_header
 
@@ -129,7 +131,22 @@ def check_imap_connection_sync():
         return True, "En ligne et authentifié"
     except Exception as e:
         return False, f"Erreur : {e}"
+    
+def get_attachments(msg):
+    attachments = []
+    for part in msg.walk():
+        if part.get_content_maintype() == 'multipart':
+            continue
+        
+        if part.get('Content-Disposition') is None:
+            continue
 
+        filename = part.get_filename()
+        if filename:
+            filename = decode_mime_words(filename)
+            filestream = io.BytesIO(part.get_payload(decode=True))
+            attachments.append(discord.File(filestream, filename=filename))
+    return attachments
 
 # ==========================================
 # TÂCHE ASYNCRONE
@@ -170,6 +187,7 @@ async def check_emails():
                             subs = rule.get("subscribers", [])
                             mentions_str = " ".join([f"<@{uid}>" for uid in subs])
                             content = f"|| {mentions_str} ||" if subs else ""
+                            attachments = get_attachments(msg)
                             
                             embed = discord.Embed(
                                 title=f"{sender}: {subject}",
@@ -178,4 +196,6 @@ async def check_emails():
                             )
                             
                             view = NotificationView("email", rule.get("id"))
-                            await channel.send(content=content, embed=embed, view=view)
+                            await channel.send(content=content, embed=embed, view=view, files=attachments)
+
+                            
